@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Przewodnik&colon; ESP32-C3 z czujnikiem DHT11 i MQTT</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="przewodnik-esp32-c3-z-czujnikiem-dht11-i-mqtt">Przewodnik: ESP32-C3 z czujnikiem DHT11 i MQTT</h1>
+<h2 id="instrukcja-dla-studentów---konfiguracja-od-a-do-z">Instrukcja dla studentów - konfiguracja od A do Z</h2>
+<hr>
+<h2 id="1-instalacja-wsparcia-dla-esp32">1. Instalacja wsparcia dla ESP32</h2>
+<h3 id="dodanie-url-do-menedżera-płytek">Dodanie URL do menedżera płytek:</h3>
+<ol>
+<li>Otwórz <strong>Arduino IDE</strong></li>
+<li>Przejdź do <strong>File → Preferences</strong> (lub <strong>Arduino IDE → Preferences</strong> na macOS)</li>
+<li>W polu <strong>&quot;Additional boards manager URLs&quot;</strong> wklej:<pre><code>https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+</code></pre>
+</li>
+<li>Kliknij <strong>OK</strong></li>
+</ol>
+<h3 id="instalacja-pakietu-esp32">Instalacja pakietu ESP32:</h3>
+<ol>
+<li>Kliknij ikonę <strong>Boards Manager</strong> (druga ikona z lewej strony)</li>
+<li>Wyszukaj: <strong>&quot;esp32&quot;</strong></li>
+<li>Znajdź <strong>&quot;esp32 by Espressif Systems&quot;</strong></li>
+<li>Wybierz wersję <strong>3.0.7</strong> (stabilna, unikaj 3.3.x - ma błędy!)</li>
+<li>Kliknij <strong>INSTALL</strong></li>
+<li>Poczekaj na zakończenie instalacji (~5 minut)</li>
+<li><strong>Zrestartuj Arduino IDE</strong></li>
+</ol>
+<hr>
+<h2 id="2-instalacja-wymaganych-bibliotek">2. Instalacja wymaganych bibliotek</h2>
+<h3 id="biblioteki-do-zainstalowania">Biblioteki do zainstalowania:</h3>
+<ol>
+<li>Kliknij ikonę <strong>Library Manager</strong> (ikona książek po lewej stronie)</li>
+<li>Zainstaluj kolejno:</li>
+</ol>
+<p><strong>a) DHT sensor library</strong></p>
+<ul>
+<li>Wyszukaj: <code>DHT sensor library</code></li>
+<li>Autor: <strong>Adafruit</strong></li>
+<li>Kliknij <strong>INSTALL</strong></li>
+<li>Jeśli pojawi się pytanie o zależności → <strong>INSTALL ALL</strong></li>
+</ul>
+<p><strong>b) Adafruit Unified Sensor</strong></p>
+<ul>
+<li>Wyszukaj: <code>Adafruit Unified Sensor</code></li>
+<li>Autor: <strong>Adafruit</strong></li>
+<li>Kliknij <strong>INSTALL</strong></li>
+</ul>
+<p><strong>c) PubSubClient</strong></p>
+<ul>
+<li>Wyszukaj: <code>PubSubClient3</code></li>
+<li>Autor: <strong>Nick O'Leary</strong></li>
+<li>Kliknij <strong>INSTALL</strong></li>
+</ul>
+<hr>
+<h2 id="3-konfiguracja-płytki-esp32-c3">3. Konfiguracja płytki ESP32-C3</h2>
+<h3 id="wybór-płytki">Wybór płytki:</h3>
+<ol>
+<li><strong>Tools → Board → esp32 → ESP32C3 Dev Module</strong></li>
+</ol>
+<h3 id="konfiguracja-portów-i-ustawień">Konfiguracja portów i ustawień:</h3>
+<p>Po wybraniu płytki ustaw:</p>
+<table>
+<thead>
+<tr>
+<th>Parametr</th>
+<th>Wartość</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>USB CDC On Boot</strong></td>
+<td><strong>Enabled</strong> ← WAŻNE!</td>
+</tr>
+<tr>
+<td><strong>CPU Frequency</strong></td>
+<td>160MHz</td>
+</tr>
+<tr>
+<td><strong>Flash Size</strong></td>
+<td>4MB</td>
+</tr>
+<tr>
+<td><strong>Flash Mode</strong></td>
+<td>QIO</td>
+</tr>
+<tr>
+<td><strong>Upload Speed</strong></td>
+<td>921600</td>
+</tr>
+<tr>
+<td><strong>Core Debug Level</strong></td>
+<td>None (wyłącza debug ESP-IDF)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="wybór-portu">Wybór portu:</h3>
+<p><strong>Tools → Port</strong> → Wybierz port z ESP32-C3 (np. <code>/dev/cu.usbmodem1101</code> na Mac, <code>COM3</code> na Windows)</p>
+<hr>
+<h2 id="4-podłączenie-czujnika-dht11">4. Podłączenie czujnika DHT11</h2>
+<h3 id="schemat-połączeń">Schemat połączeń:</h3>
+<pre><code>DHT11 (moduł PCB z 3 pinami):
+┌─────────────┐
+│   DHT11     │
+│  ┌───────┐  │
+│  │  │ │ │  │
+└──┼──┼─┼─┼──┘
+   │  │ │ │
+   VCC│ │GND
+     DATA
+      │
+      ↓
+ESP32-C3:
+┌──────────────┐
+│ VCC → 3.3V   │
+│ DATA→ GPIO10 │
+│ GND → GND    │
+└──────────────┘
+</code></pre>
+<hr>
+<h2 id="5-wgrywanie-kodu-na-esp32-c3">5. Wgrywanie kodu na ESP32-C3</h2>
+<h3 id="️-ważne-tryb-programowania">⚠️ WAŻNE: Tryb programowania</h3>
+<p>ESP32-C3 ma natywny USB, ale czasami wymaga manualnego wejścia w tryb bootloadera:</p>
+<h3 id="procedura-wgrywania">Procedura wgrywania:</h3>
+<p><strong>Sposób 1 - Automatyczny (zazwyczaj działa):</strong></p>
+<ol>
+<li>Podłącz ESP32-C3 przez USB-C</li>
+<li>Kliknij przycisk <strong>Upload</strong> (strzałka w prawo)</li>
+<li>Poczekaj na kompilację i upload</li>
+</ol>
+<p><strong>Sposób 2 - Manualny (jeśli automatyczny nie działa):</strong></p>
+<ol>
+<li><strong>Przytrzymaj przycisk BOOT</strong> na ESP32-C3</li>
+<li><strong>Naciśnij i puść przycisk RESET</strong> (nadal trzymając BOOT)</li>
+<li><strong>Puść przycisk BOOT</strong> po ~1 sekundzie</li>
+<li><strong>Natychmiast kliknij Upload</strong> w Arduino IDE</li>
+<li>ESP32 jest teraz w trybie bootloadera i gotowy do programowania</li>
+</ol>
+<hr>
+<h2 id="6-testowanie">6. Testowanie</h2>
+<h3 id="po-wgraniu-kodu">Po wgraniu kodu:</h3>
+<ol>
+<li>Otwórz <strong>Serial Monitor</strong> (ikona lupy, góra po prawej)</li>
+<li>Ustaw baudrate: <strong>115200</strong></li>
+<li>Naciśnij przycisk <strong>RESET</strong> na ESP32-C3</li>
+<li>Powinieneś zobaczyć:<pre><code>=== ESP32-C3 DHT11 MQTT ===
+DHT11 zainicjalizowany
+✓ DHT11 OK: 23.00°C, 45.00%
+✓ WiFi połączone!
+✓ MQTT połączono
+</code></pre>
+</li>
+</ol>
+<hr>
+<h2 id="7-wzorcowy-kod-arduino">7. Wzorcowy kod Arduino</h2>
+<h3 id="przed-wgraniem-zmień">Przed wgraniem zmień:</h3>
+<pre><code class="language-cpp"><span class="hljs-type">const</span> <span class="hljs-type">char</span>* ssid = <span class="hljs-string">&quot;NAZWA_TWOJEJ_SIECI&quot;</span>;          <span class="hljs-comment">// ← Twoja sieć WiFi (2.4GHz!)</span>
+<span class="hljs-type">const</span> <span class="hljs-type">char</span>* password = <span class="hljs-string">&quot;HASLO_DO_SIECI&quot;</span>;          <span class="hljs-comment">// ← Hasło WiFi</span>
+<span class="hljs-type">const</span> <span class="hljs-type">char</span>* mqtt_server = <span class="hljs-string">&quot;test.mosquitto.org&quot;</span>;   <span class="hljs-comment">// ← Adres brokera MQTT</span>
+<span class="hljs-type">const</span> <span class="hljs-type">int</span> mqtt_port = <span class="hljs-number">1884</span>;                       <span class="hljs-comment">// ← Port MQTT</span>
+</code></pre>
+<h3 id="pełny-kod">Pełny kod:</h3>
+<pre><code class="language-cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;WiFi.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;PubSubClient.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;DHT.h&gt;</span></span>
+
+<span class="hljs-comment">// Konfiguracja WiFi</span>
+<span class="hljs-type">const</span> <span class="hljs-type">char</span>* ssid = <span class="hljs-string">&quot;NAZWA_TWOJEJ_SIECI&quot;</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">char</span>* password = <span class="hljs-string">&quot;HASLO_DO_SIECI&quot;</span>;
+
+<span class="hljs-comment">// Konfiguracja MQTT</span>
+<span class="hljs-type">const</span> <span class="hljs-type">char</span>* mqtt_server = <span class="hljs-string">&quot;test.mosquitto.org&quot;</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">int</span> mqtt_port = <span class="hljs-number">1884</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">char</span>* mqtt_user = <span class="hljs-string">&quot;rw&quot;</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">char</span>* mqtt_password = <span class="hljs-string">&quot;readwrite&quot;</span>;
+
+<span class="hljs-comment">// Topiki MQTT</span>
+<span class="hljs-type">const</span> <span class="hljs-type">char</span>* temp_topic = <span class="hljs-string">&quot;wsb/iot/temperature&quot;</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">char</span>* hum_topic = <span class="hljs-string">&quot;wsb/salon/humidity&quot;</span>;
+
+<span class="hljs-comment">// Konfiguracja DHT11</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> DHTPIN 10</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> DHTTYPE DHT11</span>
+<span class="hljs-function">DHT <span class="hljs-title">dht</span><span class="hljs-params">(DHTPIN, DHTTYPE)</span></span>;
+
+WiFiClient espClient;
+<span class="hljs-function">PubSubClient <span class="hljs-title">client</span><span class="hljs-params">(espClient)</span></span>;
+
+<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> lastMsg = <span class="hljs-number">0</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">long</span> interval = <span class="hljs-number">10000</span>;
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setup</span><span class="hljs-params">()</span> </span>{
+  Serial.<span class="hljs-built_in">begin</span>(<span class="hljs-number">115200</span>);
+  <span class="hljs-built_in">delay</span>(<span class="hljs-number">1000</span>);
+  
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;\n\n=== ESP32-C3 DHT11 MQTT ===&quot;</span>);
+  
+  <span class="hljs-comment">// Inicjalizacja DHT11</span>
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;=== TEST DHT11 ===&quot;</span>);
+  Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Pin: GPIO&quot;</span>);
+  Serial.<span class="hljs-built_in">println</span>(DHTPIN);
+
+  dht.<span class="hljs-built_in">begin</span>();
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;DHT11 zainicjalizowany&quot;</span>);
+  
+  <span class="hljs-comment">// Czekaj 2 sekundy na stabilizację czujnika</span>
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Czekam 2s na stabilizację DHT11...&quot;</span>);
+  <span class="hljs-built_in">delay</span>(<span class="hljs-number">2000</span>);
+  
+  <span class="hljs-comment">// Test odczytu DHT11 PRZED WiFi</span>
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Test odczytu DHT11:&quot;</span>);
+  <span class="hljs-type">float</span> h = dht.<span class="hljs-built_in">readHumidity</span>();
+  <span class="hljs-type">float</span> t = dht.<span class="hljs-built_in">readTemperature</span>();
+  
+  <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isnan</span>(h) || <span class="hljs-built_in">isnan</span>(t)) {
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;✗ DHT11 nie odpowiada!&quot;</span>);
+  } <span class="hljs-keyword">else</span> {
+    Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;✓ DHT11 OK: &quot;</span>);
+    Serial.<span class="hljs-built_in">print</span>(t);
+    Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;°C, &quot;</span>);
+    Serial.<span class="hljs-built_in">print</span>(h);
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;%&quot;</span>);
+  }
+    
+  <span class="hljs-comment">// Połączenie z WiFi</span>
+  <span class="hljs-built_in">setup_wifi</span>();
+  
+  <span class="hljs-comment">// Konfiguracja MQTT</span>
+  client.<span class="hljs-built_in">setServer</span>(mqtt_server, mqtt_port);
+  client.<span class="hljs-built_in">setKeepAlive</span>(<span class="hljs-number">60</span>); 
+  client.<span class="hljs-built_in">setCallback</span>(callback);
+  
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Setup zakończony&quot;</span>);
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setup_wifi</span><span class="hljs-params">()</span> </span>{
+  <span class="hljs-built_in">delay</span>(<span class="hljs-number">10</span>);
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;\n--- Konfiguracja WiFi ---&quot;</span>);
+  Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;SSID: &quot;</span>);
+  Serial.<span class="hljs-built_in">println</span>(ssid);
+  Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Hasło długość: &quot;</span>);
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-built_in">strlen</span>(password));
+
+  WiFi.<span class="hljs-built_in">mode</span>(WIFI_STA);
+  WiFi.<span class="hljs-built_in">disconnect</span>();
+  <span class="hljs-built_in">delay</span>(<span class="hljs-number">100</span>);
+  
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Rozpoczynam łączenie...&quot;</span>);
+  WiFi.<span class="hljs-built_in">begin</span>(ssid, password);
+
+  <span class="hljs-type">int</span> attempts = <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">while</span> (WiFi.<span class="hljs-built_in">status</span>() != WL_CONNECTED &amp;&amp; attempts &lt; <span class="hljs-number">30</span>) {
+    <span class="hljs-built_in">delay</span>(<span class="hljs-number">500</span>);
+    Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;.&quot;</span>);
+    attempts++;
+    
+    <span class="hljs-keyword">if</span> (attempts % <span class="hljs-number">10</span> == <span class="hljs-number">0</span>) {
+      Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\nStatus WiFi: &quot;</span>);
+      Serial.<span class="hljs-built_in">println</span>(WiFi.<span class="hljs-built_in">status</span>());
+    }
+  }
+  
+  Serial.<span class="hljs-built_in">println</span>();
+  
+  <span class="hljs-keyword">if</span> (WiFi.<span class="hljs-built_in">status</span>() == WL_CONNECTED) {
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;✓ WiFi połączone!&quot;</span>);
+    Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Adres IP: &quot;</span>);
+    Serial.<span class="hljs-built_in">println</span>(WiFi.<span class="hljs-built_in">localIP</span>());
+    Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;RSSI: &quot;</span>);
+    Serial.<span class="hljs-built_in">print</span>(WiFi.<span class="hljs-built_in">RSSI</span>());
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot; dBm&quot;</span>);
+  } <span class="hljs-keyword">else</span> {
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;✗ Błąd połączenia WiFi!&quot;</span>);
+    Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Status: &quot;</span>);
+    Serial.<span class="hljs-built_in">println</span>(WiFi.<span class="hljs-built_in">status</span>());
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Sprawdź:&quot;</span>);
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;- Czy SSID jest poprawne&quot;</span>);
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;- Czy hasło jest poprawne&quot;</span>);
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;- Czy sieć to 2.4GHz (nie 5GHz)&quot;</span>);
+  }
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">callback</span><span class="hljs-params">(<span class="hljs-type">char</span>* topic, byte* payload, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> length)</span> </span>{
+  Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Wiadomość [&quot;</span>);
+  Serial.<span class="hljs-built_in">print</span>(topic);
+  Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;]: &quot;</span>);
+  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; length; i++) {
+    Serial.<span class="hljs-built_in">print</span>((<span class="hljs-type">char</span>)payload[i]);
+  }
+  Serial.<span class="hljs-built_in">println</span>();
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">reconnect</span><span class="hljs-params">()</span> </span>{
+  <span class="hljs-keyword">while</span> (!client.<span class="hljs-built_in">connected</span>()) {
+    Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Łączenie z MQTT...&quot;</span>);
+    
+    String clientId = <span class="hljs-string">&quot;ESP32C3-&quot;</span>;
+    clientId += <span class="hljs-built_in">String</span>(<span class="hljs-built_in">random</span>(<span class="hljs-number">0xffff</span>), HEX);
+    
+    <span class="hljs-keyword">if</span> (client.<span class="hljs-built_in">connect</span>(clientId.<span class="hljs-built_in">c_str</span>(), mqtt_user, mqtt_password)) {
+      Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot; ✓ połączono&quot;</span>);
+    } <span class="hljs-keyword">else</span> {
+      Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot; ✗ błąd, rc=&quot;</span>);
+      Serial.<span class="hljs-built_in">print</span>(client.<span class="hljs-built_in">state</span>());
+      Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot; | ponowna próba za 5s&quot;</span>);
+      <span class="hljs-built_in">delay</span>(<span class="hljs-number">5000</span>);
+    }
+  }
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">loop</span><span class="hljs-params">()</span> </span>{
+  <span class="hljs-comment">// Sprawdź połączenie WiFi</span>
+  <span class="hljs-keyword">if</span> (WiFi.<span class="hljs-built_in">status</span>() != WL_CONNECTED) {
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;WiFi rozłączone! Ponowne łączenie...&quot;</span>);
+    <span class="hljs-built_in">setup_wifi</span>();
+    <span class="hljs-keyword">return</span>;
+  }
+  
+  <span class="hljs-keyword">if</span> (!client.<span class="hljs-built_in">connected</span>()) {
+    <span class="hljs-built_in">reconnect</span>();
+  }
+  client.<span class="hljs-built_in">loop</span>();
+
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> now = <span class="hljs-built_in">millis</span>();
+  <span class="hljs-keyword">if</span> (now - lastMsg &gt; interval) {
+    lastMsg = now;
+    
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;\n--- Odczyt czujnika ---&quot;</span>);
+    <span class="hljs-type">float</span> humidity = dht.<span class="hljs-built_in">readHumidity</span>();
+    <span class="hljs-type">float</span> temperature = dht.<span class="hljs-built_in">readTemperature</span>();
+    
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isnan</span>(humidity) || <span class="hljs-built_in">isnan</span>(temperature)) {
+      Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;✗ Błąd odczytu DHT11 (czujnik niepodłączony?)&quot;</span>);
+      <span class="hljs-keyword">return</span>;
+    }
+    
+    Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Temperatura: &quot;</span>);
+    Serial.<span class="hljs-built_in">print</span>(temperature);
+    Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;°C | Wilgotność: &quot;</span>);
+    Serial.<span class="hljs-built_in">print</span>(humidity);
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;%&quot;</span>);
+    
+    <span class="hljs-type">char</span> tempString[<span class="hljs-number">8</span>];
+    <span class="hljs-type">char</span> humString[<span class="hljs-number">8</span>];
+    <span class="hljs-built_in">dtostrf</span>(temperature, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, tempString);
+    <span class="hljs-built_in">dtostrf</span>(humidity, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, humString);
+    
+    <span class="hljs-type">bool</span> temp_sent = client.<span class="hljs-built_in">publish</span>(temp_topic, tempString);
+    <span class="hljs-type">bool</span> hum_sent = client.<span class="hljs-built_in">publish</span>(hum_topic, humString);
+    
+    Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Temperatura: &quot;</span>);
+    Serial.<span class="hljs-built_in">println</span>(temp_sent ? <span class="hljs-string">&quot;✓ wysłana&quot;</span> : <span class="hljs-string">&quot;✗ błąd&quot;</span>);
+    Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Wilgotność: &quot;</span>);
+    Serial.<span class="hljs-built_in">println</span>(hum_sent ? <span class="hljs-string">&quot;✓ wysłana&quot;</span> : <span class="hljs-string">&quot;✗ błąd&quot;</span>);
+  }
+  <span class="hljs-built_in">delay</span>(<span class="hljs-number">10</span>);
+}
+</code></pre>
+<hr>
+<h2 id="8-broker-mqtt---testmosquittoorg">8. Broker MQTT - <a href="http://test.mosquitto.org">test.mosquitto.org</a></h2>
+<p>Korzystamy z publicznego brokera testowego <strong><a href="http://test.mosquitto.org">test.mosquitto.org</a></strong> prowadzonego przez Eclipse Foundation.</p>
+<p>Dokumentacja dostepna na: <a href="https://test.mosquitto.org/">https://test.mosquitto.org/</a></p>
+<h3 id="dostepne-porty">Dostepne porty</h3>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Protokol</th>
+<th>SSL/TLS</th>
+<th>Autoryzacja</th>
+<th>Uzycie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1883</strong></td>
+<td>MQTT</td>
+<td>Nie</td>
+<td>Nie</td>
+<td>Podstawowe testy (niezalecany)</td>
+</tr>
+<tr>
+<td><strong>1884</strong></td>
+<td>MQTT</td>
+<td>Nie</td>
+<td>Tak (<code>rw</code>/<code>readwrite</code>)</td>
+<td><strong>Uzywamy w kodzie ESP32</strong></td>
+</tr>
+<tr>
+<td><strong>8883</strong></td>
+<td>MQTT</td>
+<td>Tak</td>
+<td>Nie</td>
+<td>Produkcja z szyfrowaniem</td>
+</tr>
+<tr>
+<td><strong>8080</strong></td>
+<td>WebSocket</td>
+<td>Nie</td>
+<td>Nie</td>
+<td>Przegladarka bez SSL</td>
+</tr>
+<tr>
+<td><strong>8081</strong></td>
+<td>WebSocket</td>
+<td>Nie</td>
+<td>Tak</td>
+<td>Przegladarka z autoryzacja</td>
+</tr>
+<tr>
+<td><strong>8090</strong></td>
+<td>WebSocket</td>
+<td>Tak</td>
+<td>Nie</td>
+<td>Przegladarka z SSL</td>
+</tr>
+<tr>
+<td><strong>8091</strong></td>
+<td>WebSocket</td>
+<td>Tak</td>
+<td>Tak</td>
+<td><strong>Uzywamy do podgladu w MQTTX</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="konfiguracja-w-kodzie-esp32">Konfiguracja w kodzie ESP32</h3>
+<p>W naszym projekcie uzywamy portu <strong>1884</strong> (MQTT bez SSL, z autoryzacja):</p>
+<pre><code class="language-cpp"><span class="hljs-type">const</span> <span class="hljs-type">char</span>* mqtt_server = <span class="hljs-string">&quot;test.mosquitto.org&quot;</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">int</span> mqtt_port = <span class="hljs-number">1884</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">char</span>* mqtt_user = <span class="hljs-string">&quot;rw&quot;</span>;
+<span class="hljs-type">const</span> <span class="hljs-type">char</span>* mqtt_password = <span class="hljs-string">&quot;readwrite&quot;</span>;
+</code></pre>
+<p>Dlaczego port 1884:</p>
+<ul>
+<li>ESP32 bez dodatkowych bibliotek nie obsluguje SSL (port 8884 wymaga WiFiClientSecure)</li>
+<li>Autoryzacja chroni przed przypadkowym spamem na publicznym brokerze</li>
+<li>Prostsza konfiguracja dla celow edukacyjnych</li>
+</ul>
+<hr>
+<h2 id="9-monitorowanie-danych-mqtt">9. Monitorowanie danych MQTT</h2>
+<p>Do podgladu wiadomosci uzywamy protokolu <strong>WebSocket</strong> (porty 8xxx), poniewaz dziala w przegladarce.</p>
+<h3 id="opcja-1---mqttx-web-client-zalecana">Opcja 1 - MQTTX Web Client (zalecana)</h3>
+<ol>
+<li>Otworz: <a href="https://mqttx.app/web-client">https://mqttx.app/web-client</a></li>
+<li>Kliknij <strong>New Connection</strong></li>
+<li>Wypelnij dane:
+<ul>
+<li><strong>Name:</strong> dowolna nazwa</li>
+<li><strong>Host:</strong> <code>wss://test.mosquitto.org</code></li>
+<li><strong>Port:</strong> <code>8091</code> (WebSocket + SSL + autoryzacja)</li>
+<li><strong>Username:</strong> <code>rw</code></li>
+<li><strong>Password:</strong> <code>readwrite</code></li>
+</ul>
+</li>
+<li>Kliknij <strong>Connect</strong></li>
+<li>Po polaczeniu dodaj subskrypcje: <code>wsb/#</code></li>
+<li>Obserwuj przychodzace wiadomosci</li>
+</ol>
+<h3 id="opcja-2---mosquitto-client-linia-polecen">Opcja 2 - Mosquitto Client (linia polecen)</h3>
+<pre><code class="language-bash">mosquitto_sub -h test.mosquitto.org -p 1884 -u rw -P readwrite -t <span class="hljs-string">&quot;wsb/#&quot;</span> -v
+</code></pre>
+<p>Wymaga zainstalowanego klienta mosquitto (<code>brew install mosquitto</code> na macOS).</p>
+<hr>
+<h2 id="10-najczestsze-problemy-i-rozwiazania">10. Najczestsze problemy i rozwiazania</h2>
+<h3 id="problem-set-status-to-init-w-serial-monitor">Problem: &quot;Set status to INIT&quot; w Serial Monitor</h3>
+<p><strong>Rozwiązanie:</strong> Ustaw <strong>Core Debug Level → None</strong> w Tools</p>
+<h3 id="problem-błąd-kompilacji-z-partitionscsv">Problem: Błąd kompilacji z partitions.csv</h3>
+<p><strong>Rozwiązanie:</strong> Zainstaluj ESP32 wersję <strong>3.0.7</strong> (nie 3.3.x)</p>
+<h3 id="problem-dht11-nie-odpowiada">Problem: DHT11 nie odpowiada</h3>
+<p><strong>Rozwiązanie:</strong></p>
+<ul>
+<li>Sprawdź połączenia (zwłaszcza DATA → GPIO10)</li>
+<li>Spróbuj innego pinu (GPIO4, GPIO5, GPIO6)</li>
+<li>Sprawdź zasilanie 3.3V</li>
+</ul>
+<h3 id="problem-wifi-status--4-wl_connect_failed">Problem: WiFi status = 4 (WL_CONNECT_FAILED)</h3>
+<p><strong>Rozwiązanie:</strong></p>
+<ul>
+<li>Sprawdź hasło (wielkość liter!)</li>
+<li>Upewnij się że sieć to 2.4GHz (nie 5GHz)</li>
+<li>Spróbuj hotspota z telefonu do testów</li>
+</ul>
+<h3 id="problem-mqtt-timeout-disconnect">Problem: MQTT timeout disconnect</h3>
+<p><strong>Rozwiązanie:</strong></p>
+<ul>
+<li>Upewnij się że <code>client.loop()</code> jest wywoływany często</li>
+<li>Dodaj <code>client.setKeepAlive(60)</code> w setup</li>
+</ul>
+<h3 id="problem-nie-mogę-wgrać-kodu">Problem: Nie mogę wgrać kodu</h3>
+<p><strong>Rozwiązanie:</strong></p>
+<ul>
+<li>Przytrzymaj BOOT → Naciśnij RESET → Puść RESET → Puść BOOT → Upload</li>
+<li>Sprawdź czy <strong>USB CDC On Boot = Enabled</strong></li>
+</ul>
+<hr>
+<h2 id="11-zadania-dla-studentow">11. Zadania dla studentow</h2>
+<p><strong>Zadanie 1:</strong> Z modyfikuj skrypt tak, aby wysyłał dane przez SSL na porcie 883 bez autoryzacji.</p>
+<p><strong>Zadanie 5:</strong> Dodaj do setupu ekran OLED SSD1306 i wyswietlaj na nim temperature i wilgotnosc</p>
+<hr>
+<h2 id="zadanie-5---rozwiazanie-ekran-oled-ssd1306">Zadanie 5 - Rozwiazanie: Ekran OLED SSD1306</h2>
+<h3 id="wymagane-biblioteki">Wymagane biblioteki</h3>
+<p>Zainstaluj przez <strong>Library Manager</strong> (ikona ksiazek w Arduino IDE):</p>
+<table>
+<thead>
+<tr>
+<th>Biblioteka</th>
+<th>Autor</th>
+<th>Uwagi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Adafruit SSD1306</strong></td>
+<td>Adafruit</td>
+<td>Glowna biblioteka do obslugi wyswietlacza</td>
+</tr>
+<tr>
+<td><strong>Adafruit GFX Library</strong></td>
+<td>Adafruit</td>
+<td>Wymagana zaleznosc - biblioteka graficzna</td>
+</tr>
+</tbody>
+</table>
+<p>Przy instalacji Adafruit SSD1306 wybierz <strong>INSTALL ALL</strong> gdy pojawi sie pytanie o zaleznosci.</p>
+<hr>
+<h3 id="schemat-polaczen">Schemat polaczen</h3>
+<pre><code>OLED SSD1306 (I2C, 4 piny):
+┌─────────────────────┐
+│      OLED 0.96&quot;     │
+│   ┌─────────────┐   │
+│   │             │   │
+│   │   128x64    │   │
+│   │             │   │
+│   └─────────────┘   │
+└──┬──┬──┬──┬─────────┘
+   │  │  │  │
+  GND VCC SCL SDA
+   │  │  │  │
+   │  │  │  └──→ GPIO8 (SDA)
+   │  │  └─────→ GPIO9 (SCL)
+   │  └────────→ 3.3V
+   └───────────→ GND
+
+ESP32-C3 SuperMini:
+┌──────────────────────┐
+│  GND  ←── GND        │
+│  3.3V ←── VCC        │
+│  GPIO9 ←── SCL (SCK) │
+│  GPIO8 ←── SDA       │
+└──────────────────────┘
+</code></pre>
+<p><strong>Wazne:</strong> Sprawdz kolejnosc pinow na swoim module OLED - rozne modele maja rozna kolejnosc (GND-VCC-SCL-SDA lub VCC-GND-SCL-SDA).</p>
+<hr>
+<h3 id="kod---deklaracje-i-includy">Kod - deklaracje i includy</h3>
+<pre><code class="language-cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Wire.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Adafruit_GFX.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Adafruit_SSD1306.h&gt;</span></span>
+
+<span class="hljs-comment">// Konfiguracja OLED</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SCREEN_WIDTH 128</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SCREEN_HEIGHT 64</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> OLED_RESET -1        <span class="hljs-comment">// Reset pin (-1 jesli brak)</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SCREEN_ADDRESS 0x3C  <span class="hljs-comment">// Adres I2C (0x3C lub 0x3D)</span></span>
+
+<span class="hljs-comment">// Piny I2C dla ESP32-C3 SuperMini</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> I2C_SDA 8</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> I2C_SCL 9</span>
+
+<span class="hljs-comment">// Utworzenie obiektu wyswietlacza</span>
+<span class="hljs-function">Adafruit_SSD1306 <span class="hljs-title">display</span><span class="hljs-params">(SCREEN_WIDTH, SCREEN_HEIGHT, &amp;Wire, OLED_RESET)</span></span>;
+</code></pre>
+<hr>
+<h3 id="inicjalizacja-w-setup">Inicjalizacja w setup()</h3>
+<pre><code class="language-cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setup</span><span class="hljs-params">()</span> </span>{
+  Serial.<span class="hljs-built_in">begin</span>(<span class="hljs-number">115200</span>);
+  <span class="hljs-built_in">delay</span>(<span class="hljs-number">1000</span>);
+
+  <span class="hljs-comment">// Inicjalizacja I2C z niestandardowymi pinami</span>
+  Wire.<span class="hljs-built_in">begin</span>(I2C_SDA, I2C_SCL);
+
+  <span class="hljs-comment">// Inicjalizacja wyswietlacza OLED</span>
+  <span class="hljs-keyword">if</span> (!display.<span class="hljs-built_in">begin</span>(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Blad inicjalizacji SSD1306!&quot;</span>);
+    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>); <span class="hljs-comment">// Zatrzymaj program</span>
+  }
+
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;OLED zainicjalizowany&quot;</span>);
+
+  <span class="hljs-comment">// Wyczysc bufor i wyswietl</span>
+  display.<span class="hljs-built_in">clearDisplay</span>();
+  display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">1</span>);
+  display.<span class="hljs-built_in">setTextColor</span>(SSD1306_WHITE);
+  display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+  display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;ESP32-C3 + DHT11&quot;</span>);
+  display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Inicjalizacja...&quot;</span>);
+  display.<span class="hljs-built_in">display</span>();
+
+  <span class="hljs-built_in">delay</span>(<span class="hljs-number">2000</span>);
+
+  <span class="hljs-comment">// Reszta inicjalizacji (DHT11, WiFi, MQTT)</span>
+  dht.<span class="hljs-built_in">begin</span>();
+  <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<hr>
+<h3 id="funkcja-wyswietlania-temperatury-i-wilgotnosci">Funkcja wyswietlania temperatury i wilgotnosci</h3>
+<pre><code class="language-cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">displayReadings</span><span class="hljs-params">(<span class="hljs-type">float</span> temperature, <span class="hljs-type">float</span> humidity)</span> </span>{
+  display.<span class="hljs-built_in">clearDisplay</span>();
+
+  <span class="hljs-comment">// Tytul</span>
+  display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">1</span>);
+  display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+  display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;=== Pomiary ===&quot;</span>);
+
+  <span class="hljs-comment">// Temperatura - duza czcionka</span>
+  display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">2</span>);
+  display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">0</span>, <span class="hljs-number">16</span>);
+  display.<span class="hljs-built_in">print</span>(temperature, <span class="hljs-number">1</span>);  <span class="hljs-comment">// 1 miejsce po przecinku</span>
+  display.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot; &quot;</span>);
+  display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">1</span>);
+  display.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;o&quot;</span>);             <span class="hljs-comment">// Symbol stopnia</span>
+  display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">2</span>);
+  display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;C&quot;</span>);
+
+  <span class="hljs-comment">// Wilgotnosc - duza czcionka</span>
+  display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">0</span>, <span class="hljs-number">40</span>);
+  display.<span class="hljs-built_in">print</span>(humidity, <span class="hljs-number">1</span>);
+  display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot; %&quot;</span>);
+
+  <span class="hljs-comment">// Wyslij bufor na ekran</span>
+  display.<span class="hljs-built_in">display</span>();
+}
+</code></pre>
+<hr>
+<h3 id="uzycie-w-loop">Uzycie w loop()</h3>
+<pre><code class="language-cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">loop</span><span class="hljs-params">()</span> </span>{
+  <span class="hljs-comment">// ... (obsluga WiFi i MQTT)</span>
+
+  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> now = <span class="hljs-built_in">millis</span>();
+  <span class="hljs-keyword">if</span> (now - lastMsg &gt; interval) {
+    lastMsg = now;
+
+    <span class="hljs-type">float</span> humidity = dht.<span class="hljs-built_in">readHumidity</span>();
+    <span class="hljs-type">float</span> temperature = dht.<span class="hljs-built_in">readTemperature</span>();
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isnan</span>(humidity) || <span class="hljs-built_in">isnan</span>(temperature)) {
+      Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Blad odczytu DHT11!&quot;</span>);
+
+      <span class="hljs-comment">// Wyswietl blad na OLED</span>
+      display.<span class="hljs-built_in">clearDisplay</span>();
+      display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">1</span>);
+      display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">0</span>, <span class="hljs-number">28</span>);
+      display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;  Blad czujnika!&quot;</span>);
+      display.<span class="hljs-built_in">display</span>();
+      <span class="hljs-keyword">return</span>;
+    }
+
+    <span class="hljs-comment">// Wyswietl na OLED</span>
+    <span class="hljs-built_in">displayReadings</span>(temperature, humidity);
+
+    <span class="hljs-comment">// Wyslij przez MQTT</span>
+    <span class="hljs-comment">// ...</span>
+  }
+}
+</code></pre>
+<hr>
+<h3 id="wersja-rozszerzona---z-wifi-i-mqtt-status">Wersja rozszerzona - z WiFi i MQTT status</h3>
+<pre><code class="language-cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">displayFullStatus</span><span class="hljs-params">(<span class="hljs-type">float</span> temp, <span class="hljs-type">float</span> hum, <span class="hljs-type">bool</span> wifiOk, <span class="hljs-type">bool</span> mqttOk)</span> </span>{
+  display.<span class="hljs-built_in">clearDisplay</span>();
+
+  <span class="hljs-comment">// Ikony statusu w gornym rogu</span>
+  display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">1</span>);
+  display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">90</span>, <span class="hljs-number">0</span>);
+  display.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;W:&quot;</span>);
+  display.<span class="hljs-built_in">print</span>(wifiOk ? <span class="hljs-string">&quot;OK&quot;</span> : <span class="hljs-string">&quot;--&quot;</span>);
+
+  display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">90</span>, <span class="hljs-number">10</span>);
+  display.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;M:&quot;</span>);
+  display.<span class="hljs-built_in">print</span>(mqttOk ? <span class="hljs-string">&quot;OK&quot;</span> : <span class="hljs-string">&quot;--&quot;</span>);
+
+  <span class="hljs-comment">// Linia oddzielajaca</span>
+  display.<span class="hljs-built_in">drawLine</span>(<span class="hljs-number">0</span>, <span class="hljs-number">20</span>, <span class="hljs-number">128</span>, <span class="hljs-number">20</span>, SSD1306_WHITE);
+
+  <span class="hljs-comment">// Temperatura</span>
+  display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">1</span>);
+  display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+  display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Temp:&quot;</span>);
+
+  display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">2</span>);
+  display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">0</span>, <span class="hljs-number">26</span>);
+  display.<span class="hljs-built_in">print</span>(temp, <span class="hljs-number">1</span>);
+  display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot; C&quot;</span>);
+
+  <span class="hljs-comment">// Wilgotnosc</span>
+  display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">1</span>);
+  display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">0</span>, <span class="hljs-number">46</span>);
+  display.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Wilgotnosc: &quot;</span>);
+  display.<span class="hljs-built_in">print</span>(hum, <span class="hljs-number">1</span>);
+  display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot; %&quot;</span>);
+
+  display.<span class="hljs-built_in">display</span>();
+}
+</code></pre>
+<hr>
+<h3 id="pelny-przykladowy-kod-oled--dht11">Pelny przykladowy kod (OLED + DHT11)</h3>
+<pre><code class="language-cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Wire.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Adafruit_GFX.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Adafruit_SSD1306.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;DHT.h&gt;</span></span>
+
+<span class="hljs-comment">// OLED</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SCREEN_WIDTH 128</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SCREEN_HEIGHT 64</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> OLED_RESET -1</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> SCREEN_ADDRESS 0x3C</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> I2C_SDA 8</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> I2C_SCL 9</span>
+
+<span class="hljs-comment">// DHT11</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> DHTPIN 10</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> DHTTYPE DHT11</span>
+
+<span class="hljs-function">Adafruit_SSD1306 <span class="hljs-title">display</span><span class="hljs-params">(SCREEN_WIDTH, SCREEN_HEIGHT, &amp;Wire, OLED_RESET)</span></span>;
+<span class="hljs-function">DHT <span class="hljs-title">dht</span><span class="hljs-params">(DHTPIN, DHTTYPE)</span></span>;
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setup</span><span class="hljs-params">()</span> </span>{
+  Serial.<span class="hljs-built_in">begin</span>(<span class="hljs-number">115200</span>);
+  <span class="hljs-built_in">delay</span>(<span class="hljs-number">1000</span>);
+
+  <span class="hljs-comment">// I2C</span>
+  Wire.<span class="hljs-built_in">begin</span>(I2C_SDA, I2C_SCL);
+
+  <span class="hljs-comment">// OLED</span>
+  <span class="hljs-keyword">if</span> (!display.<span class="hljs-built_in">begin</span>(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;OLED ERROR!&quot;</span>);
+    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>);
+  }
+
+  display.<span class="hljs-built_in">clearDisplay</span>();
+  display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">1</span>);
+  display.<span class="hljs-built_in">setTextColor</span>(SSD1306_WHITE);
+  display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">20</span>, <span class="hljs-number">28</span>);
+  display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Starting...&quot;</span>);
+  display.<span class="hljs-built_in">display</span>();
+
+  <span class="hljs-comment">// DHT11</span>
+  dht.<span class="hljs-built_in">begin</span>();
+  <span class="hljs-built_in">delay</span>(<span class="hljs-number">2000</span>);
+
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Ready!&quot;</span>);
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">loop</span><span class="hljs-params">()</span> </span>{
+  <span class="hljs-type">float</span> temp = dht.<span class="hljs-built_in">readTemperature</span>();
+  <span class="hljs-type">float</span> hum = dht.<span class="hljs-built_in">readHumidity</span>();
+
+  display.<span class="hljs-built_in">clearDisplay</span>();
+
+  <span class="hljs-keyword">if</span> (<span class="hljs-built_in">isnan</span>(temp) || <span class="hljs-built_in">isnan</span>(hum)) {
+    display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">10</span>, <span class="hljs-number">28</span>);
+    display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Sensor Error!&quot;</span>);
+  } <span class="hljs-keyword">else</span> {
+    display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">1</span>);
+    display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+    display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Temperatura:&quot;</span>);
+
+    display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">3</span>);
+    display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">0</span>, <span class="hljs-number">12</span>);
+    display.<span class="hljs-built_in">print</span>(temp, <span class="hljs-number">1</span>);
+    display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;C&quot;</span>);
+
+    display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">1</span>);
+    display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">0</span>, <span class="hljs-number">42</span>);
+    display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Wilgotnosc:&quot;</span>);
+
+    display.<span class="hljs-built_in">setTextSize</span>(<span class="hljs-number">2</span>);
+    display.<span class="hljs-built_in">setCursor</span>(<span class="hljs-number">0</span>, <span class="hljs-number">52</span>);
+    display.<span class="hljs-built_in">print</span>(hum, <span class="hljs-number">0</span>);
+    display.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot; %&quot;</span>);
+  }
+
+  display.<span class="hljs-built_in">display</span>();
+  <span class="hljs-built_in">delay</span>(<span class="hljs-number">2000</span>);
+}
+</code></pre>
+<hr>
+<h3 id="najczestsze-problemy-z-oled">Najczestsze problemy z OLED</h3>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Rozwiazanie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ekran nie swieci</td>
+<td>Sprawdz zasilanie 3.3V i GND</td>
+</tr>
+<tr>
+<td>Nic nie wyswietla</td>
+<td>Sprawdz adres I2C (0x3C vs 0x3D)</td>
+</tr>
+<tr>
+<td>Smieci na ekranie</td>
+<td>Zamien SDA z SCL (zle podlaczone)</td>
+</tr>
+<tr>
+<td>Biblioteka nie kompiluje</td>
+<td>Zainstaluj Adafruit GFX jako zaleznosc</td>
+</tr>
+<tr>
+<td>I2C nie dziala</td>
+<td>Upewnij sie ze Wire.begin() ma prawidlowe piny</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Skaner I2C</strong> - jesli nie znasz adresu wyswietlacza:</p>
+<pre><code class="language-cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;Wire.h&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setup</span><span class="hljs-params">()</span> </span>{
+  Wire.<span class="hljs-built_in">begin</span>(<span class="hljs-number">8</span>, <span class="hljs-number">9</span>);  <span class="hljs-comment">// SDA=8, SCL=9</span>
+  Serial.<span class="hljs-built_in">begin</span>(<span class="hljs-number">115200</span>);
+  <span class="hljs-built_in">delay</span>(<span class="hljs-number">1000</span>);
+
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Skanowanie I2C...&quot;</span>);
+  <span class="hljs-keyword">for</span> (byte addr = <span class="hljs-number">1</span>; addr &lt; <span class="hljs-number">127</span>; addr++) {
+    Wire.<span class="hljs-built_in">beginTransmission</span>(addr);
+    <span class="hljs-keyword">if</span> (Wire.<span class="hljs-built_in">endTransmission</span>() == <span class="hljs-number">0</span>) {
+      Serial.<span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Znaleziono: 0x&quot;</span>);
+      Serial.<span class="hljs-built_in">println</span>(addr, HEX);
+    }
+  }
+  Serial.<span class="hljs-built_in">println</span>(<span class="hljs-string">&quot;Skanowanie zakonczone.&quot;</span>);
+}
+
+<span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">loop</span><span class="hljs-params">()</span> </span>{}
+</code></pre>
+<hr>
+
+            
+            
+        </body>
+        </html>
