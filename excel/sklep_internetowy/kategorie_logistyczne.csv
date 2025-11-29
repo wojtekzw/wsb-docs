@@ -1,0 +1,5 @@
+Kategoria_Logistyczna,Opis,Koszt_Bazowy,Wspolczynnik_Gabarytowy
+A,Produkty duże ciężkie lub wymagające specjalnego transportu,40.00,1.25
+B,Produkty średniej wielkości,20.00,1.00
+C,Produkty małe i lekkie,12.00,0.80
+D,Produkty bardzo małe (np. książki),8.00,0.60

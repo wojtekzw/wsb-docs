@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Analiza sprzeda&zdot;y i rentowno&sacute;ci sklepu internetowego</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="analiza-sprzedaży-i-rentowności-sklepu-internetowego">Analiza sprzedaży i rentowności sklepu internetowego</h1>
+<h2 id="opis-zadania">Opis zadania</h2>
+<p>W ramach tego zadania będziesz pracować jako analityk danych w sklepie internetowym, który sprzedaje produkty z różnych kategorii: Elektronika, Odzież, Artykuły sportowe, Książki, Dom i ogród oraz Zabawki. Masz dostęp do danych sprzedażowych z całego 2024 roku. Twoim zadaniem jest przeprowadzenie kompleksowej analizy, która pozwoli na zrozumienie trendów sprzedaży, sezonowości, najpopularniejszych produktów, zróżnicowania regionalnego oraz rentowności poszczególnych kategorii produktów.</p>
+<h2 id="cele-zadania">Cele zadania</h2>
+<ol>
+<li>Stworzenie modelu danych sprzedażowych z podziałem na kategorie produktów</li>
+<li>Implementacja formuł warunkowych do analizy trendów sprzedaży</li>
+<li>Utworzenie interaktywnego pulpitu nawigacyjnego (dashboard) z filtrami</li>
+<li>Prognozowanie przyszłej sprzedaży na podstawie danych historycznych</li>
+<li>Analiza rentowności sprzedaży poszczególnych kategorii produktów</li>
+</ol>
+<h2 id="materiały">Materiały</h2>
+<p>Do wykonania zadania będziesz potrzebować następujących plików z katalogu <code>sklep_internetowy</code>:</p>
+<ul>
+<li><code>sprzedaz.csv</code> - dane sprzedażowe za rok 2024</li>
+<li><code>katalog_produktow_rozszerzony.csv</code> - rozszerzony katalog produktów zawierający dane o kosztach zakupu, marżach indywidualnych i kategoriach logistycznych</li>
+<li><code>kategorie_logistyczne.csv</code> - opis kategorii logistycznych i ich kosztów</li>
+<li><code>koszty_wspolne.csv</code> - dane o kosztach wspólnych w podziale na miesiące</li>
+<li><code>klucze_alokacji.csv</code> - klucze alokacji kosztów wspólnych na kategorie produktów</li>
+</ul>
+<h2 id="zadania-szczegółowe">Zadania szczegółowe</h2>
+<h3 id="część-1-import-i-przygotowanie-danych-30-minut">Część 1: Import i przygotowanie danych (30 minut)</h3>
+<ol>
+<li>
+<p><strong>Import danych z pliku CSV:</strong></p>
+<ul>
+<li>Otwórz nowy skoroszyt Excel</li>
+<li>Przejdź do zakładki &quot;Dane&quot; na wstążce</li>
+<li>Wybierz &quot;Z tekstu/CSV&quot;</li>
+<li>Znajdź i wybierz plik <code>sprzedaz.csv</code></li>
+<li>W oknie podglądu upewnij się, że dane są prawidłowo rozdzielone (separatorem powinien być średnik, kodowanie UTF-8)</li>
+<li>Kliknij &quot;Załaduj&quot;</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> W oknie importu możesz od razu określić typy danych dla poszczególnych kolumn, na przykład ustaw typ &quot;Data&quot; dla kolumny &quot;Data&quot; i typ &quot;Liczba dziesiętna&quot; dla kolumn zawierających wartości pieniężne.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Formatowanie danych:</strong></p>
+<ul>
+<li>Sformatuj dane jako tabelę (zakładka &quot;Wstawianie&quot; &gt; &quot;Tabela&quot;)</li>
+<li>Nadaj tabeli nazwę &quot;DaneSprzedazy&quot;</li>
+<li>Zastosuj odpowiednie formaty liczbowe:
+<ul>
+<li>Dla kolumn z cenami i wartościami zastosuj format walutowy (zł)</li>
+<li>Dla kolumny z datą zastosuj wybrany format daty</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> Aby szybko sformatować kolumnę, zaznacz ją, kliknij prawym przyciskiem myszy i wybierz &quot;Formatuj komórki&quot;.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Utworzenie dodatkowych kolumn pomocniczych:</strong></p>
+<ul>
+<li>Dodaj kolumnę &quot;Miesiąc&quot; - wyodrębnij miesiąc z daty (funkcja MIESIĄC)</li>
+<li>Dodaj kolumnę &quot;Kwartał&quot; - oblicz kwartał na podstawie miesiąca (funkcja ZAOKR.W.GÓRĘ)</li>
+<li>Dodaj kolumnę &quot;Dzień tygodnia&quot; - określ dzień tygodnia dla każdej transakcji (funkcja DZIEŃ.TYG)</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> Użyj formuły <code>=MIESIĄC([@Data])</code> dla kolumny Miesiąc oraz <code>=ZAOKR.W.GÓRĘ([@Miesiąc]/3;0)</code> dla kolumny Kwartał.</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="część-2-analiza-podstawowa-45-minut">Część 2: Analiza podstawowa (45 minut)</h3>
+<ol>
+<li>
+<p><strong>Utworzenie arkusza &quot;Analiza_Podstawowa&quot;:</strong></p>
+<ul>
+<li>Utwórz nowy arkusz o nazwie &quot;Analiza_Podstawowa&quot;</li>
+</ul>
+</li>
+<li>
+<p><strong>Obliczenie kluczowych wskaźników sprzedaży:</strong></p>
+<ul>
+<li>Sumaryczna wartość sprzedaży (ogółem)</li>
+<li>Liczba unikalnych transakcji</li>
+<li>Średnia wartość zamówienia</li>
+<li>Najwyższa i najniższa wartość zamówienia</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> Możesz użyć funkcji SUMA, LICZ.JEŻELI, ŚREDNIA, MAX, MIN lub funkcji tablicowych, np. <code>=SUMA(DaneSprzedazy[Calkowita_Wartosc])</code></p>
+</blockquote>
+</li>
+<li>
+<p><strong>Analiza sprzedaży według kategorii produktów:</strong></p>
+<ul>
+<li>Utwórz tabelę przestawną pokazującą:
+<ul>
+<li>Wartość sprzedaży według kategorii</li>
+<li>Liczbę sprzedanych sztuk według kategorii</li>
+<li>Średnią wartość zamówienia według kategorii</li>
+</ul>
+</li>
+<li>Dodaj podsumowanie procentowe dla udziału każdej kategorii w całkowitej sprzedaży</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> Aby utworzyć tabelę przestawną, przejdź do zakładki &quot;Wstawianie&quot; &gt; &quot;Tabela przestawna&quot;. Dodaj pole &quot;Kategoria&quot; do obszaru wierszy oraz odpowiednie pola wartości do obszaru wartości.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Analiza sprzedaży według regionów:</strong></p>
+<ul>
+<li>Utwórz tabelę przestawną pokazującą:
+<ul>
+<li>Wartość sprzedaży według regionów</li>
+<li>Liczba transakcji według regionów</li>
+</ul>
+</li>
+<li>Dodaj analizę kategorii produktów w poszczególnych regionach</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> Dodaj pola &quot;Region&quot; i &quot;Kategoria&quot; do obszaru wierszy tabeli przestawnej.</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="część-3-analiza-czasowa-i-sezonowość-45-minut">Część 3: Analiza czasowa i sezonowość (45 minut)</h3>
+<ol>
+<li>
+<p><strong>Utworzenie arkusza &quot;Analiza_Czasowa&quot;:</strong></p>
+<ul>
+<li>Utwórz nowy arkusz o nazwie &quot;Analiza_Czasowa&quot;</li>
+</ul>
+</li>
+<li>
+<p><strong>Analiza sprzedaży miesięcznej:</strong></p>
+<ul>
+<li>Utwórz tabelę przestawną pokazującą sprzedaż w podziale na miesiące</li>
+<li>Oblicz dynamikę sprzedaży miesiąc do miesiąca (procentowa zmiana)</li>
+<li>Zidentyfikuj miesiące z najwyższą i najniższą sprzedażą</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> W tabeli przestawnej dodaj pole &quot;Miesiąc&quot; do obszaru wierszy oraz sumę z &quot;Calkowita_Wartosc&quot; do obszaru wartości. Do obliczenia dynamiki możesz dodać obliczone pole z formułą wykorzystującą funkcję procentowej różnicy.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Analiza sezonowości według kategorii:</strong></p>
+<ul>
+<li>Utwórz tabelę przestawną z miesiącami w wierszach i kategoriami w kolumnach</li>
+<li>Zidentyfikuj wzorce sezonowe dla różnych kategorii produktów</li>
+<li>Zastosuj formatowanie warunkowe, aby wyróżnić okresy szczytowe</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> Użyj formatowania warunkowego typu &quot;Paski danych&quot; lub &quot;Kolorowa skala&quot; aby wizualnie podkreślić zmiany sezonowe.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Analiza sprzedaży według dni tygodnia:</strong></p>
+<ul>
+<li>Utwórz tabelę przestawną pokazującą sprzedaż w zależności od dnia tygodnia</li>
+<li>Oblicz, który dzień tygodnia generuje najwyższą sprzedaż</li>
+<li>Sprawdź, czy istnieją różnice w strukturze zakupów w zależności od dnia tygodnia</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> Użyj wcześniej utworzonej kolumny &quot;Dzień tygodnia&quot;. Możesz również skorzystać z formatowania niestandardowego, aby wyświetlać nazwy dni tygodnia zamiast liczb.</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="część-4-wizualizacja-danych-i-tworzenie-dashboardu-45-minut">Część 4: Wizualizacja danych i tworzenie dashboardu (45 minut)</h3>
+<ol>
+<li>
+<p><strong>Utworzenie arkusza &quot;Dashboard&quot;:</strong></p>
+<ul>
+<li>Utwórz nowy arkusz o nazwie &quot;Dashboard&quot;</li>
+<li>Nadaj mu atrakcyjny i profesjonalny wygląd (zastosuj kolory firmowe, dodaj logo itp.)</li>
+</ul>
+</li>
+<li>
+<p><strong>Tworzenie kluczowych wykresów:</strong></p>
+<ul>
+<li>Wykres kolumnowy pokazujący sprzedaż miesięczną</li>
+<li>Wykres kołowy pokazujący udział kategorii w całkowitej sprzedaży</li>
+<li>Wykres słupkowy pokazujący top 5 najlepiej sprzedających się produktów</li>
+<li>Mapa cieplna (lub tabela z formatowaniem warunkowym) pokazująca sezonowość sprzedaży dla kazdej kategorii</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> Aby utworzyć wykres, zaznacz odpowiednie dane w tabeli przestawnej i przejdź do zakładki &quot;Wstawianie&quot; &gt; wybierz odpowiedni typ wykresu. Możesz również utworzyć wykres bezpośrednio z tabeli przestawnej, klikając ikonę wykresu w menu narzędzi tabeli przestawnej.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Dodanie interaktywnych elementów:</strong></p>
+<ul>
+<li>Dodaj fragmentatory (slicery) umożliwiające filtrowanie danych według:
+<ul>
+<li>Kategorii produktów</li>
+<li>Regionów</li>
+<li>Kwartałów/Miesięcy</li>
+</ul>
+</li>
+<li>Dodaj pole kombi (combo box) do wyboru produktu do szczegółowej analizy</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> Aby dodać fragmentator, zaznacz tabelę przestawną i przejdź do zakładki &quot;Wstawianie&quot; &gt; &quot;Fragmentator&quot;. W opcjach fragmentatora możesz dostosować jego wygląd i zachowanie.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Utworzenie panelu KPI (Key Performance Indicators):</strong></p>
+<ul>
+<li>Dodaj wskaźniki liczbowe pokazujące:
+<ul>
+<li>Całkowitą sprzedaż</li>
+<li>Liczbę transakcji</li>
+<li>Średnią wartość zamówienia</li>
+<li>Dynamikę rok do roku (symulowana - porównanie drugiej połowy roku do pierwszej)</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> Możesz użyć kształtów i pól tekstowych, aby utworzyć efektowne wskaźniki KPI. Wartości możesz pobierać z tabel przestawnych za pomocą funkcji WEŹDANETABELI lub poprzez bezpośrednie odwołania do komórek.</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="część-5-prognozowanie-i-analiza-zaawansowana-15-minut">Część 5: Prognozowanie i analiza zaawansowana (15 minut)</h3>
+<ol>
+<li>
+<p><strong>Utworzenie arkusza &quot;Prognozy&quot;:</strong></p>
+<ul>
+<li>Utwórz nowy arkusz o nazwie &quot;Prognozy&quot;</li>
+</ul>
+</li>
+<li>
+<p><strong>Prognozowanie przyszłej sprzedaży:</strong></p>
+<ul>
+<li>Zastosuj funkcję REGLINP lub PROGNOZA.LINIOWA lub arkusz prognozy, aby przewidzieć sprzedaż na kolejne 3 miesiące</li>
+<li>Uwzględnij sezonowość w swojej prognozie (analizując wzorce sezonowe z danych historycznych)</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> W nowszych wersjach Excela możesz użyć arkusza prognozy (kliknij prawym przyciskiem myszy na wykres sprzedaży miesięcznej i wybierz opcję &quot;Dodaj linię trendu&quot;). W starszych wersjach możesz użyć funkcji REGLINP, a w nowszych PROGNOZA.LINIOWA lub utworzyć własny model prognostyczny z uwzględnieniem sezonowości.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Analiza &quot;Co jeśli&quot;:</strong></p>
+<ul>
+<li>Utwórz prosty model pozwalający symulować wpływ zmian cen na sprzedaż</li>
+</ul>
+<blockquote>
+<p><strong>Podpowiedź:</strong> Możesz utworzyć formuły, które będą reagować na zmiany parametrów wprowadzanych przez użytkownika.</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="kryteria-oceny">Kryteria oceny</h2>
+<p>Zadanie będzie oceniane według następujących kryteriów:</p>
+<ol>
+<li>
+<p><strong>Poprawność wykonania (35%)</strong></p>
+<ul>
+<li>Prawidłowe wykonanie wszystkich zadań</li>
+<li>Poprawność formuł i obliczeń</li>
+<li>Brak błędów w analizie</li>
+</ul>
+</li>
+<li>
+<p><strong>Funkcjonalność i użyteczność (25%)</strong></p>
+<ul>
+<li>Łatwość nawigacji po skoroszycie</li>
+<li>Intuicyjność dashboardu</li>
+<li>Praktyczna wartość analiz i rekomendacji</li>
+</ul>
+</li>
+<li>
+<p><strong>Analiza rentowności (20%)</strong></p>
+<ul>
+<li>Poprawność obliczeń rentowności</li>
+<li>Dokładność alokacji kosztów</li>
+<li>Jakość modelu optymalizacyjnego</li>
+</ul>
+</li>
+<li>
+<p><strong>Estetyka i przejrzystość (10%)</strong></p>
+<ul>
+<li>Profesjonalny wygląd skoroszytu</li>
+<li>Czytelność wykresów i tabel</li>
+<li>Spójność wizualna</li>
+</ul>
+</li>
+<li>
+<p><strong>Innowacyjność i kreatywność (10%)</strong></p>
+<ul>
+<li>Dodatkowe analizy wykraczające poza podstawowe wymagania</li>
+<li>Kreatywne podejście do wizualizacji danych</li>
+<li>Niestandardowe rozwiązania</li>
+</ul>
+</li>
+</ol>
+<h2 id="wskazówki-końcowe">Wskazówki końcowe</h2>
+<ol>
+<li>Przed rozpoczęciem pracy zapoznaj się dokładnie ze strukturą danych i relacjami między plikami.</li>
+<li>Planuj swoją pracę zgodnie z podanymi czasami realizacji poszczególnych części.</li>
+<li>Regularnie zapisuj plik, aby uniknąć utraty danych.</li>
+<li>Jeśli nie wiesz jak wykonać jakieś zadanie, poszukaj pomocy w systemie pomocy Excela lub zapytaj prowadzącego.</li>
+<li>Pamiętaj o dokumentowaniu swojej pracy - dodawaj nazwy do zakresów, opisuj wykresy i tabele.</li>
+<li>W części dotyczącej rentowności zwróć szczególną uwagę na poprawność obliczeń i logikę alokacji kosztów.</li>
+</ol>
+<p>Powodzenia!</p>
+
+            
+            
+        </body>
+        </html>

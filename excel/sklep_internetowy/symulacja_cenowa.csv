@@ -1,0 +1,10 @@
+Symulacja wpływu zmiany cen na sprzedaż
+
+Kategoria,Aktualna sprzedaż,Zmiana ceny (%),Elastyczność cenowa,Przewidywana sprzedaż,Zmiana sprzedaży (%)
+Elektronika,4200000,0.05,-0.8,0,0
+Odzież,2500000,0,-1.2,0,0
+Artykuły sportowe,1800000,-0.1,-0.7,0,0
+Książki,1200000,0.05,-0.5,0,0
+Dom i ogród,1800000,0.1,-0.9,0,0
+Zabawki,1400000,-0.05,-1.1,0,0
+RAZEM,12900000,0,0,0,0

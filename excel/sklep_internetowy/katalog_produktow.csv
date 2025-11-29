@@ -1,0 +1,31 @@
+Kategoria,Produkt,Koszt_Zakupu,Marza_Produkt,Kategoria_Logistyczna,Koszt_Logistyki,Cena_Sprzedazy
+Elektronika,Smartfon Galaxy X20,1850.00,0.18,A,45.00,2228.00
+Elektronika,Słuchawki Bezprzewodowe SoundMax,240.00,0.22,C,15.00,307.80
+Elektronika,Smartwatch FitPro,560.00,0.21,B,25.00,703.00
+Elektronika,Laptop ProBook Air,3350.00,0.19,A,50.00,4036.50
+Elektronika,Tablet MediaPad 10,1150.00,0.18,A,35.00,1392.00
+Odzież,Kurtka zimowa męska Alpine,280.00,0.28,B,20.00,378.40
+Odzież,Sukienka letnia Sunshine,110.00,0.32,C,15.00,160.20
+Odzież,Spodnie jeansowe ClassicBlue,120.00,0.31,C,15.00,172.20
+Odzież,T-shirt BasicColor,45.00,0.35,C,10.00,70.75
+Odzież,Buty sportowe RunFast,200.00,0.33,B,18.00,284.00
+Artykuły sportowe,Piłka do koszykówki Pro,85.00,0.32,C,12.00,124.20
+Artykuły sportowe,Mata do jogi Comfort,60.00,0.29,C,10.00,87.40
+Artykuły sportowe,Hantle 5kg zestaw,100.00,0.28,B,18.00,146.00
+Artykuły sportowe,Rower górski XTerra,1350.00,0.28,A,35.00,1763.00
+Artykuły sportowe,Kijki trekkingowe Hike,90.00,0.32,C,12.00,130.80
+Książki,Powieść 'Tajemnica Gór',25.00,0.35,D,8.00,41.75
+Książki,Poradnik 'Skuteczny Excel',42.00,0.31,D,8.00,63.02
+Książki,Atlas Świata 2024,65.00,0.34,D,10.00,97.10
+Książki,Kryminał 'Ciemna Noc',24.00,0.33,D,8.00,39.92
+Książki,Książka kucharska 'Smaki Azji',48.00,0.29,D,9.00,70.92
+Dom i ogród,Zestaw mebli ogrodowych Relax,780.00,0.38,A,60.00,1136.40
+Dom i ogród,Lampa stojąca Modern,165.00,0.32,B,20.00,237.80
+Dom i ogród,Komplet pościeli Dream,135.00,0.29,C,18.00,192.15
+Dom i ogród,Zestaw garnków Kitchen Pro,340.00,0.28,B,22.00,457.20
+Dom i ogród,Narzędzia ogrodnicze Garden+,130.00,0.27,C,15.00,180.10
+Zabawki,Klocki konstrukcyjne BlockWorld,135.00,0.32,B,18.00,196.20
+Zabawki,Gra planszowa FamilyFun,85.00,0.33,C,15.00,128.05
+Zabawki,Auto zdalnie sterowane RacerX,155.00,0.28,B,20.00,218.40
+Zabawki,Lalka interaktywna TalkingFriend,110.00,0.26,C,15.00,153.60
+Zabawki,Puzzle 1000el. WorldMap,45.00,0.34,C,12.00,72.30
