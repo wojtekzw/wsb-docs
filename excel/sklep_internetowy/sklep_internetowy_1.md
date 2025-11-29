@@ -13,11 +13,11 @@ W ramach tego zadania będziesz pracować jako analityk danych w sklepie interne
 
 ## Materiały
 Do wykonania zadania będziesz potrzebować następujących plików z katalogu `sklep_internetowy`:
-- `sprzedaz.csv` - dane sprzedażowe za rok 2024
-- `katalog_produktow_rozszerzony.csv` - rozszerzony katalog produktów zawierający dane o kosztach zakupu, marżach indywidualnych i kategoriach logistycznych
-- `kategorie_logistyczne.csv` - opis kategorii logistycznych i ich kosztów
-- `koszty_wspolne.csv` - dane o kosztach wspólnych w podziale na miesiące
-- `klucze_alokacji.csv` - klucze alokacji kosztów wspólnych na kategorie produktów
+- [`sprzedaz.csv`](sprzedaz.csv) - dane sprzedażowe za rok 2024
+- [`katalog_produktow.csv`](katalog_produktow.csv) - katalog produktów zawierający dane o kosztach zakupu, marżach indywidualnych i kategoriach logistycznych
+- [`kategorie_logistyczne.csv`](kategorie_logistyczne.csv) - opis kategorii logistycznych i ich kosztów
+- [`koszty_wspolne.csv`](koszty_wspolne.csv) - dane o kosztach wspólnych w podziale na miesiące
+- [`klucze_alokacji.csv`](klucze_alokacji.csv) - klucze alokacji kosztów wspólnych na kategorie produktów
 
 
 ## Zadania szczegółowe
